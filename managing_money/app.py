@@ -1,10 +1,11 @@
 import android
 from android.widget import LinearLayout, TextView
-
+from .models import manamoneyDB
 
 class MainApp:
     def __init__(self):
         self._activity = android.PythonActivity.setListener(self)
+        self.db = manamoneyDB()
 
     def onCreate(self):
         label = TextView(self._activity)
