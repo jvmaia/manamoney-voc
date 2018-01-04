@@ -6,7 +6,7 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         context: android.content.Context,
         "com.jvmaiia.managing_money": java.lang.String,
         None: android.database.sqlite.SQLiteDatabase[CursorFactory],
-        2: int
+        1: int
     })
     def __init__(self, context):
         pass
@@ -19,13 +19,13 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
             "person TEXT NOT NULL,"
             "value INTEGER NOT NULL,"
             "payed BOOLEAN NOT NULL CHECK (payed IN (0,1)),"
-            "products TEXT NOT NULL"
+            "products TEXT NOT NULL,"
             "),"
             "CREATE TABLE product ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             "name TEXT NOT NULL,"
             "quantity INTEGER NOT NULL,"
-            "value INTEGER NOT NULL"
+            "value INTEGER NOT NULL,"
             ")"
         )
 

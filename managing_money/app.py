@@ -5,7 +5,7 @@ from .models import manamoneyDB
 class MainApp:
     def __init__(self):
         self._activity = android.PythonActivity.setListener(self)
-        self.db = manamoneyDB()
+        self.db = manamoneyDB(self._activity)
 
     def onCreate(self):
         label = TextView(self._activity)
