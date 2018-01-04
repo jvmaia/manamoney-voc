@@ -18,14 +18,14 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             "person TEXT NOT NULL,"
             "value INTEGER NOT NULL,"
-            "payed BOOLEAN NOT NULL CHECK (payed IN (0,1)),"
-            "products TEXT NOT NULL,"
+            "description TEXT NOT NULL,"
+            "payed BOOLEAN NOT NULL CHECK (payed IN (0,1))"
             "),"
             "CREATE TABLE product ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             "name TEXT NOT NULL,"
             "quantity INTEGER NOT NULL,"
-            "value INTEGER NOT NULL,"
+            "value INTEGER NOT NULL"
             ")"
         )
 
@@ -34,13 +34,23 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         print('will upgrade database from', oldVersion, ' to', newVersion)
         raise NotImplementedError
 
-    def create_product(self, item):
+    def create_product(self, product):
         values = ContentValues()
-        values.put("name", name)
-        values.put("value", value)
-        values.put("quantity", quantity)
+        values.put("name", product['name'])
+        values.put("value", product['value'])
+        values.put("quantity", product['quantity'])
         db = self.getWritableDatabase()
         db.insertWithOnConflict("product", None, values, SQLiteDatabase.CONFLICT_REPLACE)
+        db.close()
+
+    def create_sale(self, sale):
+        values = ContentValues()
+        values.put("person", sale['person'])
+        values.put("value", sale['value'])
+        values.put("description", sale['description'])
+        values.put("payed", sale['payed'])
+        db = self.getWritableDatabase()
+        db.insertWithOnConflict("sale", None, values, SQLiteDatabase.CONFLICT_REPLACE)
         db.close()
 
     def fetch_products(self):
@@ -54,6 +64,22 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
             value = cursor.getInt(cursor.getColumnIndex('value'))
             quantity = cursor.getInt(cursor.getColumnIndex('quantity'))
             result.append(dict(id=product_id, name=name, value=int(value), quantity=int(quantity)))
+        db.close()
+
+        return result
+
+    def fetch_sales(self):
+        result = []
+
+        db = self.getReadableDatabase()
+        cursor = db.rawQuery("SELECT * FROM sale", None)
+        while cursor.moveToNext():
+            sale_id = int(cursor.getInt(cursor.getColumnIndex('id')))
+            person = cursor.getString(cursor.getColumnIndex('person'))
+            value = cursor.getInt(cursor.getColumnIndex('value'))
+            description = cursor.getInt(cursor.getColumnIndex('description'))
+            payed = cursor.getInt(cursor.getColumnIndex('payed'))
+            result.append(dict(id=sale_id, person=person, value=int(value), description=description, payed=int(payed)))
         db.close()
 
         return result
