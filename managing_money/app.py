@@ -52,15 +52,40 @@ class MainApp:
         self.vlayout.addView(products_view)
 
     def create_product_view(self):
-        pass
+        self.vlayout.removeAllViews()
+
+        product_name = EditText(self._activity)
+        product_name.setHint('Product name')
+        self.vlayout.addView(product_name)
+
+        product_quantity = EditText(self._activity)
+        product_quantity.setHint('Product quantity')
+        product_quantity.setInputType(0x00000002) 
+        self.vlayout.addView(product_quantity)
+
+        product_value = EditText(self._activity)
+        product_value.setHint('Product value')
+        product_value.setInputType(0x00000002 | 0x00002000)
+        self.vlayout.addView(product_value)
+
+        create_button = Button(self._activity)
+        create_button.setOnClickListener(ButtonClick(self.create_product))
+        create_button.setText('Create product')
+        self.vlayout.addView(create_button)
 
     def create_sale_view(self):
+        self.vlayout.removeAllViews()
         pass
 
     def products_view(self):
+        self.vlayout.removeAllViews()
         pass
 
     def sales_view(self):
+        self.vlayout.removeAllViews()
+        pass
+
+    def create_product(self):
         pass
 
 def main():
