@@ -55,7 +55,17 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         values.put("payed", sale['payed'])
         db = self.getWritableDatabase()
         db.insertWithOnConflict("sale", None, values, SQLiteDatabase.CONFLICT_REPLACE)
-        db.close()
+
+        #remove quantity from products
+        print('DEBUG PRODUCTS = ', sale['description'])
+        products = sale['description'].split('\n')
+
+        for product in products:
+            name, quantity = product.split(':')
+            quantity = int(quantity)
+            db.execSQL(
+                "UPDATE product SET quantity = quantity - %d WHERE name='%s'" % (quantity, name)
+            )
         print('sale created')
 
     def fetch_products(self):

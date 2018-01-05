@@ -95,11 +95,13 @@ class ProductItem:
 
         self.add_button = Button(self.context)
         self.add_button.setOnClickListener(ButtonClick(self.add))
+        self.add_button.getBackground().setColorFilter(0xff8bc34a, PorterDuff.Mode.MULTIPLY)
         self.add_button.setText('+')
         hbuttons.addView(self.add_button)
 
         self.remove_button = Button(self.context)
         self.remove_button.setOnClickListener(ButtonClick(self.remove))
+        self.remove_button.getBackground().setColorFilter(0xffff0000, PorterDuff.Mode.MULTIPLY)
         self.remove_button.setText('-')
         hbuttons.addView(self.remove_button)
 
