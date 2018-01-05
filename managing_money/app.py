@@ -55,7 +55,7 @@ class SaleItem:
 
         self.text_view = StrikeableTextView(self.context, striked=sale['payed'])
         self.text_view.setText('%s   ||   R$%.2f' % (self.sale['person'], self.sale['value']))
-        self.text_view.setTextSize(25)
+        self.text_view.setTextSize(18)
         self.layout.addView(self.text_view)
 
         self.button = Button(self.context)
@@ -84,8 +84,8 @@ class ProductItem:
 
         self.layout = LinearLayout(self.context)
         self.text_view = TextView(self.context) 
-        self.text_view.setTextSize(25)
-        self.text_view.setText('%s   ||   %d   ||   R$%.2f' % (self.product['name'],
+        self.text_view.setTextSize(20)
+        self.text_view.setText('%s | %d | R$%.2f' % (self.product['name'],
                                 self.product['quantity'], self.product['value']))
         self.layout.addView(self.text_view)
 
