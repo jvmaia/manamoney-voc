@@ -53,19 +53,19 @@ class MainApp:
     def create_product_view(self):
         self.vlayout.removeAllViews()
 
-        product_name = EditText(self._activity)
-        product_name.setHint('Product name')
-        self.vlayout.addView(product_name)
+        self.product_name = EditText(self._activity)
+        self.product_name.setHint('Product name')
+        self.vlayout.addView(self.product_name)
 
-        product_quantity = EditText(self._activity)
-        product_quantity.setHint('Product quantity')
-        product_quantity.setInputType(0x00000002) 
-        self.vlayout.addView(product_quantity)
+        self.product_quantity = EditText(self._activity)
+        self.product_quantity.setHint('Product quantity')
+        self.product_quantity.setInputType(0x00000002) 
+        self.vlayout.addView(self.product_quantity)
 
-        product_value = EditText(self._activity)
-        product_value.setHint('Product value')
-        product_value.setInputType(0x00000002 | 0x00002000)
-        self.vlayout.addView(product_value)
+        self.product_price = EditText(self._activity)
+        self.product_price.setHint('Product price')
+        self.product_price.setInputType(0x00000002 | 0x00002000)
+        self.vlayout.addView(self.product_price)
 
         create_button = Button(self._activity)
         create_button.setOnClickListener(ButtonClick(self.create_product))
@@ -122,7 +122,22 @@ class MainApp:
         pass
 
     def create_product(self):
-        pass
+        product = {}
+        product['name'] = str(self.product_name.getText())
+        if len(product['name']) == 0:
+            self.product_name.setHint('Enter a valid name please')
+            return
+        
+        try:
+            product['quantity'] = int(str(self.product_quantity.getText()))
+            product['price'] = float(str(self.product_price.getText()))
+        except ValueError:
+            self.product_quantity.setHint('Enter a valid number please')
+            self.product_price.setHint('Enter a valid number please')
+            return
+
+        self.db.create_product(product)
+        self.main_view()
 
     def create_sale(self):
         pass
