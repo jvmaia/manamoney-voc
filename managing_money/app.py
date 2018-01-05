@@ -46,7 +46,6 @@ class StrikeableTextView(extends=android.widget.TextView):
             self.setTextColor(0xff111111)
         self.setPaintFlags(flags)
 
-
 class SaleItem:
     def __init__(self, sale, context, callback=None):
         self.sale = sale
@@ -203,6 +202,25 @@ class MainApp:
         products_view.setOnClickListener(ButtonClick(self.products_view))
         self.vlayout.addView(products_view)
 
+        hlayout = LinearLayout(self._activity)
+        hlayout.setOrientation(LinearLayout.HORIZONTAL)
+        relative_bottom = RelativeLayout(self._activity)
+        relative_right = RelativeLayout(self._activity)
+
+        received, to_receive = self.get_balance()
+        received_view = TextView(self._activity)
+        received_view.setText('Received %.2f' % (received))
+        received_view.setTextSize(18)
+        to_receive_view = TextView(self._activity)
+        to_receive_view.setText('To receive %.2f' % (to_receive))
+        to_receive_view.setTextSize(18)
+
+        relative_right.addView(to_receive_view, _create_layout_params('right'))
+        hlayout.addView(received_view)
+        hlayout.addView(relative_right)
+        relative_bottom.addView(hlayout, _create_layout_params('bottom'))
+        self.vlayout.addView(relative_bottom)
+
     def create_product_view(self):
         self.vlayout.removeAllViews()
 
@@ -336,6 +354,9 @@ class MainApp:
         relative = RelativeLayout(self._activity)
         relative.addView(return_button, _create_layout_params('bottom'))
         self.vlayout.addView(relative)
+
+    def get_balance(self):
+        return self.db.get_balance()
 
 def main():
     MainApp()

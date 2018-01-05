@@ -13,7 +13,6 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         pass
 
     def onCreate(self, db: android.database.sqlite.SQLiteDatabase) -> void:
-        print('initiating manamoney database')
         db.execSQL(
             "CREATE TABLE sale ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -45,7 +44,6 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         db = self.getWritableDatabase()
         db.insertWithOnConflict("product", None, values, SQLiteDatabase.CONFLICT_REPLACE)
         db.close()
-        print('product created')
 
     def create_sale(self, sale):
         values = ContentValues()
@@ -57,7 +55,6 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         db.insertWithOnConflict("sale", None, values, SQLiteDatabase.CONFLICT_REPLACE)
 
         #remove quantity from products
-        print('DEBUG PRODUCTS = ', sale['description'])
         products = sale['description'].split('\n')
 
         for product in products:
@@ -66,7 +63,6 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
             db.execSQL(
                 "UPDATE product SET quantity = quantity - %d WHERE name='%s'" % (quantity, name)
             )
-        print('sale created')
 
     def fetch_products(self):
         result = []
@@ -103,7 +99,6 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         db = self.getReadableDatabase()
         product = db.rawQuery("SELECT * FROM product WHERE id=%d" % (value['id']), None)
         product.moveToNext()
-        print(product)
         quantity = value['quantity']
         db.close()
 
@@ -119,3 +114,25 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
             "UPDATE sale SET payed=%d WHERE id=%d"%(int(sale['payed']), sale['id'])
         )
         db.close()
+
+    def get_balance(self):
+        received = []
+        to_receive = []
+
+        db = self.getReadableDatabase()
+        cursor = db.rawQuery("SELECT * FROM sale", None)
+        
+        while cursor.moveToNext():
+            payed = bool(cursor.getInt(cursor.getColumnIndex('payed')))
+            value = float(cursor.getFloat(cursor.getColumnIndex('total')))
+            if payed:
+                received.append(value)
+            else:
+                to_receive.append(value)
+        db.close()
+
+        to_receive = sum(to_receive)
+        received = sum(received)
+
+        return received, to_receive
+ 
