@@ -2,7 +2,7 @@ import android
 import android.view
 from android.widget import (
     Button, EditText, LinearLayout,
-    RelativeLayout, ListView, TextView
+    RelativeLayout, ListView, TextView, CheckBox
     )
 from android.view import Gravity
 from .models import manamoneyDB
@@ -24,7 +24,6 @@ class MainApp:
     def onCreate(self):
         self.vlayout = LinearLayout(self._activity)
         self.vlayout.setOrientation(LinearLayout.VERTICAL)
-        self.vlayout.setGravity(Gravity.CENTER)
         self._activity.setContentView(self.vlayout)
         self.main_view()
 
@@ -73,9 +72,46 @@ class MainApp:
         create_button.setText('Create product')
         self.vlayout.addView(create_button)
 
+        return_button = Button(self._activity)
+        return_button.setOnClickListener(ButtonClick(self.main_view))
+        return_button.setText('Return')
+        self.vlayout.addView(return_button)
+
     def create_sale_view(self):
         self.vlayout.removeAllViews()
-        pass
+
+        sale_person = EditText(self._activity)
+        sale_person.setHint('Client')
+        self.vlayout.addView(sale_person)
+
+        sale_value = EditText(self._activity)
+        sale_value.setInputType(0x00000002 | 0x00002000)
+        sale_value.setHint('Value')
+        self.vlayout.addView(sale_value)
+
+        sale_description = EditText(self._activity)
+        sale_description.setHint('Sale description')
+        self.vlayout.addView(sale_description)
+
+        hlayout = LinearLayout(self._activity)
+
+        text = TextView(self._activity)
+        text.setText('Payed')
+        hlayout.addView(text)
+        sale_payed = CheckBox(self._activity)
+        hlayout.addView(sale_payed)
+
+        self.vlayout.addView(hlayout)
+
+        create_button = Button(self._activity)
+        create_button.setOnClickListener(ButtonClick(self.create_sale))
+        create_button.setText('Sale')
+        self.vlayout.addView(create_button)
+
+        return_button = Button(self._activity)
+        return_button.setOnClickListener(ButtonClick(self.main_view))
+        return_button.setText('Return')
+        self.vlayout.addView(return_button)
 
     def products_view(self):
         self.vlayout.removeAllViews()
@@ -86,6 +122,9 @@ class MainApp:
         pass
 
     def create_product(self):
+        pass
+
+    def create_sale(self):
         pass
 
 def main():
