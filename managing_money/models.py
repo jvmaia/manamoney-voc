@@ -84,18 +84,22 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
             value = cursor.getFloat(cursor.getColumnIndex('total'))
             description = cursor.getInt(cursor.getColumnIndex('description'))
             payed = cursor.getInt(cursor.getColumnIndex('payed'))
-            result.append(dict(id=sale_id, person=person, value=float(value), description=description, payed=int(payed)))
+            result.append(dict(id=sale_id, person=person, value=float(value), description=description, payed=bool(payed)))
         db.close()
 
         return result
 
     def changeQuantity_product(self, value):
+        db = self.getReadableDatabase()
+        product = db.rawQuery("SELECT * FROM product WHERE id=%d" % (value['id']), None)
+        product.moveToNext()
+        print(product)
+        quantity = value['quantity']
+        db.close()
+
         db = self.getWritableDatabase()
-        product = db.rawQuery("SELECT * FROM product WHERE id=%d" % (value['id']), None).moveToFirst()
-        quantity = product.getString(product.getColumnIndex('quantity'))
-        f_quantity = quantity + int(item['quantity'])
         db.execSQL(
-            "UPDATE product SET quantity=%d WHERE id=%d"%(f_quantity, value['id'])
+            "UPDATE product SET quantity=%d WHERE id=%d"%(quantity, value['id'])
         )
         db.close()
 

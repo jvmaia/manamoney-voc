@@ -8,6 +8,16 @@ from android.widget import (
 from android.view import Gravity
 from .models import manamoneyDB
 
+def _create_layout_params(side):
+    params = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                                         RelativeLayout.LayoutParams.WRAP_CONTENT)
+    if side == 'right':
+        params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
+    elif side == 'bottom':
+        params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+
+    return params
+
 class ButtonClick(implements=android.view.View[OnClickListener]):
     def __init__(self, callback, *args, **kwargs):
         self.callback = callback
@@ -16,12 +26,6 @@ class ButtonClick(implements=android.view.View[OnClickListener]):
 
     def onClick(self, view: android.view.View) -> void:
         self.callback(*self.args, **self.kwargs)
-
-def _create_layout_params():
-    params = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
-                                         RelativeLayout.LayoutParams.WRAP_CONTENT)
-    params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
-    return params
 
 class StrikeableTextView(extends=android.widget.TextView):
     @super({context: android.content.Context})
@@ -45,34 +49,82 @@ class StrikeableTextView(extends=android.widget.TextView):
 
 class SaleItem:
     def __init__(self, sale, context, callback=None):
-        print('DEBUG CALLBACK =', callback)
         self.sale = sale
+        self.context = context
+        self.callback = callback
+        self.layout = LinearLayout(self.context)
+
+        self.text_view = StrikeableTextView(self.context, striked=sale['payed'])
+        self.text_view.setText('%s   ||   R$%.2f' % (self.sale['person'], self.sale['value']))
+        self.text_view.setTextSize(25)
+        self.layout.addView(self.text_view)
+
+        self.button = Button(self.context)
+        self.button.setOnClickListener(ButtonClick(self.pay))
+        self.button.setText('V')
+        self.button.getBackground().setColorFilter(0xff8bc34a, PorterDuff.Mode.MULTIPLY)
+
+        relative = RelativeLayout(self.context)
+        relative.addView(self.button, _create_layout_params('right'))
+
+        self.layout.addView(relative)
+
+    def pay(self):
+        self.sale['payed'] = True
+        self.text_view.setStriked(self.sale['payed'])
+        self.callback(event='update_sale', value=self.sale)
+
+    def getView(self):
+        return self.layout
+
+class ProductItem:
+    def __init__(self, product, context, callback=None):
+        self.product = product
         self.context = context
         self.callback = callback
 
         self.layout = LinearLayout(self.context)
-        self.checkbox = CheckBox(self.context)
-        self.checkbox.setOnClickListener(ButtonClick(self.pay))
-        self.layout.addView(self.checkbox)
-            
-        self.text_view = StrikeableTextView(self.context, striked=sale['payed'])
+        self.text_view = TextView(self.context) 
         self.text_view.setTextSize(25)
+        self.text_view.setText('%s   ||   %d   ||   R$%.2f' % (self.product['name'],
+                                self.product['quantity'], self.product['value']))
         self.layout.addView(self.text_view)
 
-        self.text_view.setText(self.sale['person'] + '      ||      ' + str(self.sale['value']))
-        self.checkbox.setChecked(bool(self.sale['payed']))
+        hbuttons = LinearLayout(self.context)
+        hbuttons.setOrientation(LinearLayout.HORIZONTAL)
 
-    def pay(self):
-        self.sale['payed'] = self.checkbox.isChecked()
-        self.text_view.setStriked(self.sale['payed'])
-        self.callback(self.sale)
+        self.add_button = Button(self.context)
+        self.add_button.setOnClickListener(ButtonClick(self.add))
+        self.add_button.setText('+')
+        hbuttons.addView(self.add_button)
+
+        self.remove_button = Button(self.context)
+        self.remove_button.setOnClickListener(ButtonClick(self.remove))
+        self.remove_button.setText('-')
+        hbuttons.addView(self.remove_button)
+
+        relative = RelativeLayout(self.context)
+        relative.addView(hbuttons, _create_layout_params('right'))
+
+        self.layout.addView(relative)
+
+    def add(self):
+        self.product['quantity'] += 1
+        self.text_view.setText('%s   ||   %d   ||   R$%.2f' % (self.product['name'],
+                                self.product['quantity'], self.product['value']))
+        self.callback(event='update_product', value=self.product)
+
+    def remove(self):
+        self.product['quantity'] -= 1
+        self.text_view.setText('%s   ||   %d   ||   R$%.2f' % (self.product['name'],
+                                self.product['quantity'], self.product['value']))
+        self.callback(event='update_product', value=self.product)
 
     def getView(self):
         return self.layout
 
 class SalesListAdapter(extends=android.widget.BaseAdapter):
     def __init__(self, context, sales, listener=None):
-        print('DEBUG LISTENER =', listener)
         self.context = context
         self.sales = list(sales)
         self.listener = listener
@@ -92,6 +144,28 @@ class SalesListAdapter(extends=android.widget.BaseAdapter):
         sale = self.getItem(position)
         saleItem = SaleItem(sale, self.context, callback=self.listener)
         return saleItem.getView()
+
+class ProductsListAdapter(extends=android.widget.BaseAdapter):
+    def __init__(self, context, products, listener=None):
+        self.context = context
+        self.products = list(products)
+        self.listener = listener
+
+    def getCount(self) -> int:
+        return len(self.products)
+
+    def getItem(self, position: int) -> java.lang.Object:
+        return self.products[position]
+
+    def getItemId(self, position: int) -> long:
+        return self.products[position]['id']
+
+    def getView(self, position: int,
+                view: android.view.View,
+                container: android.view.ViewGroup) -> android.view.View:
+        product = self.getItem(position)
+        productItem = ProductItem(product, self.context, callback=self.listener)
+        return productItem.getView()
 
 class MainApp:
     def __init__(self):
@@ -148,11 +222,7 @@ class MainApp:
         create_button.setOnClickListener(ButtonClick(self.create_product))
         create_button.setText('Create product')
         self.vlayout.addView(create_button)
-
-        return_button = Button(self._activity)
-        return_button.setOnClickListener(ButtonClick(self.main_view))
-        return_button.setText('Return')
-        self.vlayout.addView(return_button)
+        self.add_return_button()
 
     def create_sale_view(self):
         self.vlayout.removeAllViews()
@@ -184,31 +254,31 @@ class MainApp:
         create_button.setOnClickListener(ButtonClick(self.create_sale))
         create_button.setText('Sale')
         self.vlayout.addView(create_button)
-
-        return_button = Button(self._activity)
-        return_button.setOnClickListener(ButtonClick(self.main_view))
-        return_button.setText('Return')
-        self.vlayout.addView(return_button)
+        self.add_return_button()        
 
     def products_view(self):
         self.vlayout.removeAllViews()
         
-        self.adapter = ProductsListAdapter(self._activity, self.productsItems)
+        self.productsItems = self.db.fetch_products()
+        self.adapter = ProductsListAdapter(self._activity, self.productsItems,
+                                            listener=self._dispatch_event)
         self.listView = ListView(self._activity)
         self.listView.setAdapter(self.adapter)
 
         self.vlayout.addView(self.listView)
+        self.add_return_button()
 
     def sales_view(self):
         self.vlayout.removeAllViews()
 
         self.salesItems = self.db.fetch_sales()
         self.adapter = SalesListAdapter(self._activity, self.salesItems,
-                                        listener=self.update_sale)
+                                        listener=self._dispatch_event)
         self.listView = ListView(self._activity)
         self.listView.setAdapter(self.adapter)
 
         self.vlayout.addView(self.listView)
+        self.add_return_button()
 
     def create_product(self):
         product = {}
@@ -251,8 +321,19 @@ class MainApp:
         self.db.create_sale(sale)
         self.main_view()
 
-    def update_sale(self, sale):
-        self.db.update_sale(sale)
+    def _dispatch_event(self, event, value):
+        if event == 'update_sale':
+            self.db.update_sale(value)
+        elif event == 'update_product':
+            self.db.changeQuantity_product(value=value)
+
+    def add_return_button(self):
+        return_button = Button(self._activity)
+        return_button.setOnClickListener(ButtonClick(self.main_view))
+        return_button.setText('Return')
+        relative = RelativeLayout(self._activity)
+        relative.addView(return_button, _create_layout_params('bottom'))
+        self.vlayout.addView(relative)
 
 def main():
     MainApp()
