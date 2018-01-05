@@ -18,7 +18,7 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
             "CREATE TABLE sale ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             "person TEXT NOT NULL,"
-            "price REAL NOT NULL,"
+            "total REAL NOT NULL,"
             "description TEXT NOT NULL,"
             "payed BOOLEAN NOT NULL CHECK (payed IN (0,1))"
             ")"
@@ -50,7 +50,7 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
     def create_sale(self, sale):
         values = ContentValues()
         values.put("person", sale['person'])
-        values.put("price", sale['price'])
+        values.put("total", sale['value'])
         values.put("description", sale['description'])
         values.put("payed", sale['payed'])
         db = self.getWritableDatabase()
@@ -81,10 +81,10 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         while cursor.moveToNext():
             sale_id = int(cursor.getInt(cursor.getColumnIndex('id')))
             person = cursor.getString(cursor.getColumnIndex('person'))
-            price = cursor.getFloat(cursor.getColumnIndex('price'))
+            value = cursor.getFloat(cursor.getColumnIndex('value'))
             description = cursor.getInt(cursor.getColumnIndex('description'))
             payed = cursor.getInt(cursor.getColumnIndex('payed'))
-            result.append(dict(id=sale_id, person=person, value=float(price), description=description, payed=int(payed)))
+            result.append(dict(id=sale_id, person=person, value=float(value), description=description, payed=int(payed)))
         db.close()
 
         return result

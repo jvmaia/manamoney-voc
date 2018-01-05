@@ -80,26 +80,26 @@ class MainApp:
     def create_sale_view(self):
         self.vlayout.removeAllViews()
 
-        sale_person = EditText(self._activity)
-        sale_person.setHint('Client')
-        self.vlayout.addView(sale_person)
+        self.sale_person = EditText(self._activity)
+        self.sale_person.setHint('Client')
+        self.vlayout.addView(self.sale_person)
 
-        sale_value = EditText(self._activity)
-        sale_value.setInputType(0x00000002 | 0x00002000)
-        sale_value.setHint('Value')
-        self.vlayout.addView(sale_value)
+        self.sale_description = EditText(self._activity)
+        self.sale_description.setHint('product: quantity')
+        self.vlayout.addView(self.sale_description)
 
-        sale_description = EditText(self._activity)
-        sale_description.setHint('Sale description')
-        self.vlayout.addView(sale_description)
+        self.sale_value = EditText(self._activity)
+        self.sale_value.setInputType(0x00000002 | 0x00002000)
+        self.sale_value.setHint('Value')
+        self.vlayout.addView(self.sale_value)
 
         hlayout = LinearLayout(self._activity)
 
         text = TextView(self._activity)
         text.setText('Payed')
         hlayout.addView(text)
-        sale_payed = CheckBox(self._activity)
-        hlayout.addView(sale_payed)
+        self.sale_payed = CheckBox(self._activity)
+        hlayout.addView(self.sale_payed)
 
         self.vlayout.addView(hlayout)
 
@@ -127,7 +127,7 @@ class MainApp:
         if len(product['name']) == 0:
             self.product_name.setHint('Enter a valid name please')
             return
-        
+
         try:
             product['quantity'] = int(str(self.product_quantity.getText()))
             product['price'] = float(str(self.product_price.getText()))
@@ -140,7 +140,27 @@ class MainApp:
         self.main_view()
 
     def create_sale(self):
-        pass
+        sale = {}
+        sale['person'] = str(self.sale_person.getText())
+        if len(sale['person']) == 0:
+            self.sale_person.setHint('Enter a valid name please')
+            return
+
+        sale['description'] = str(self.sale_description.getText())
+        if len(sale['description']) == 0:
+            self.sale_description.setHint('Enter a valid description please')
+            return
+
+        try:
+            sale['value'] = float(str(self.sale_value.getText()))
+        except ValueError:
+            self.sale_value.setHint('Enter a valid value please')
+            return
+
+        sale['payed'] = int(self.sale_payed.isChecked())
+
+        self.db.create_sale(sale)
+        self.main_view()
 
 def main():
     MainApp()
