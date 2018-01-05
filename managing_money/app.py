@@ -1,4 +1,5 @@
 import android
+from android.graphics import Paint, PorterDuff
 import android.view
 from android.widget import (
     Button, EditText, LinearLayout,
@@ -15,6 +16,82 @@ class ButtonClick(implements=android.view.View[OnClickListener]):
 
     def onClick(self, view: android.view.View) -> void:
         self.callback(*self.args, **self.kwargs)
+
+def _create_layout_params():
+    params = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                                         RelativeLayout.LayoutParams.WRAP_CONTENT)
+    params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
+    return params
+
+class StrikeableTextView(extends=android.widget.TextView):
+    @super({context: android.content.Context})
+    def __init__(self, context, striked=False):
+        self.striked = striked
+        self._repaint_strike()
+
+    def setStriked(self, striked):
+        self.striked = bool(striked)
+        self._repaint_strike()
+
+    def _repaint_strike(self):
+        if self.striked:
+            flags = self.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG
+            self.setTextColor(0xffaaaaaa)
+        else:
+            flags = self.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG
+            self.setTextColor(0xff111111)
+        self.setPaintFlags(flags)
+
+
+class SaleItem:
+    def __init__(self, sale, context, callback=None):
+        print('DEBUG CALLBACK =', callback)
+        self.sale = sale
+        self.context = context
+        self.callback = callback
+
+        self.layout = LinearLayout(self.context)
+        self.checkbox = CheckBox(self.context)
+        self.checkbox.setOnClickListener(ButtonClick(self.pay))
+        self.layout.addView(self.checkbox)
+            
+        self.text_view = StrikeableTextView(self.context, striked=sale['payed'])
+        self.text_view.setTextSize(25)
+        self.layout.addView(self.text_view)
+
+        self.text_view.setText(self.sale['person'] + '      ||      ' + str(self.sale['value']))
+        self.checkbox.setChecked(bool(self.sale['payed']))
+
+    def pay(self):
+        self.sale['payed'] = self.checkbox.isChecked()
+        self.text_view.setStriked(self.sale['payed'])
+        self.callback(self.sale)
+
+    def getView(self):
+        return self.layout
+
+class SalesListAdapter(extends=android.widget.BaseAdapter):
+    def __init__(self, context, sales, listener=None):
+        print('DEBUG LISTENER =', listener)
+        self.context = context
+        self.sales = list(sales)
+        self.listener = listener
+
+    def getCount(self) -> int:
+        return len(self.sales)
+
+    def getItem(self, position: int) -> java.lang.Object:
+        return self.sales[position]
+
+    def getItemId(self, position: int) -> long:
+        return self.sales[position]['id']
+
+    def getView(self, position: int,
+                view: android.view.View,
+                container: android.view.ViewGroup) -> android.view.View:
+        sale = self.getItem(position)
+        saleItem = SaleItem(sale, self.context, callback=self.listener)
+        return saleItem.getView()
 
 class MainApp:
     def __init__(self):
@@ -115,11 +192,23 @@ class MainApp:
 
     def products_view(self):
         self.vlayout.removeAllViews()
-        pass
+        
+        self.adapter = ProductsListAdapter(self._activity, self.productsItems)
+        self.listView = ListView(self._activity)
+        self.listView.setAdapter(self.adapter)
+
+        self.vlayout.addView(self.listView)
 
     def sales_view(self):
         self.vlayout.removeAllViews()
-        pass
+
+        self.salesItems = self.db.fetch_sales()
+        self.adapter = SalesListAdapter(self._activity, self.salesItems,
+                                        listener=self.update_sale)
+        self.listView = ListView(self._activity)
+        self.listView.setAdapter(self.adapter)
+
+        self.vlayout.addView(self.listView)
 
     def create_product(self):
         product = {}
@@ -161,6 +250,9 @@ class MainApp:
 
         self.db.create_sale(sale)
         self.main_view()
+
+    def update_sale(self, sale):
+        self.db.update_sale(sale)
 
 def main():
     MainApp()

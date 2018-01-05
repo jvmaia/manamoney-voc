@@ -81,7 +81,7 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         while cursor.moveToNext():
             sale_id = int(cursor.getInt(cursor.getColumnIndex('id')))
             person = cursor.getString(cursor.getColumnIndex('person'))
-            value = cursor.getFloat(cursor.getColumnIndex('value'))
+            value = cursor.getFloat(cursor.getColumnIndex('total'))
             description = cursor.getInt(cursor.getColumnIndex('description'))
             payed = cursor.getInt(cursor.getColumnIndex('payed'))
             result.append(dict(id=sale_id, person=person, value=float(value), description=description, payed=int(payed)))
@@ -96,5 +96,12 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         f_quantity = quantity + int(item['quantity'])
         db.execSQL(
             "UPDATE product SET quantity=%d WHERE id=%d"%(f_quantity, value['id'])
+        )
+        db.close()
+
+    def update_sale(self, sale):
+        db = self.getWritableDatabase()
+        db.execSQL(
+            "UPDATE sale SET payed=%d WHERE id=%d"%(int(sale['payed']), sale['id'])
         )
         db.close()
