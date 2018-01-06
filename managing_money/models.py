@@ -72,9 +72,9 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         while cursor.moveToNext():
             product_id = int(cursor.getInt(cursor.getColumnIndex('id')))
             name = cursor.getString(cursor.getColumnIndex('name'))
-            price = cursor.getFloat(cursor.getColumnIndex('price'))
-            quantity = cursor.getInt(cursor.getColumnIndex('quantity'))
-            result.append(dict(id=product_id, name=name, value=float(price), quantity=int(quantity)))
+            price = float(cursor.getFloat(cursor.getColumnIndex('price')))
+            quantity = int(cursor.getInt(cursor.getColumnIndex('quantity')))
+            result.append(dict(id=product_id, name=name, value=price, quantity=quantity))
         db.close()
 
         return result
@@ -87,10 +87,10 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         while cursor.moveToNext():
             sale_id = int(cursor.getInt(cursor.getColumnIndex('id')))
             person = cursor.getString(cursor.getColumnIndex('person'))
-            value = cursor.getFloat(cursor.getColumnIndex('total'))
+            value = float(cursor.getFloat(cursor.getColumnIndex('total')))
             description = cursor.getInt(cursor.getColumnIndex('description'))
-            payed = cursor.getInt(cursor.getColumnIndex('payed'))
-            result.append(dict(id=sale_id, person=person, value=float(value), description=description, payed=bool(payed)))
+            payed = bool(cursor.getInt(cursor.getColumnIndex('payed')))
+            result.append(dict(id=sale_id, person=person, value=value, description=description, payed=payed))
         db.close()
 
         return result

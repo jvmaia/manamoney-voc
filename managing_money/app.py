@@ -209,10 +209,10 @@ class MainApp:
 
         received, to_receive = self.get_balance()
         received_view = TextView(self._activity)
-        received_view.setText('Received %.2f' % (received))
+        received_view.setText('Received %.2f' % (float(received)))
         received_view.setTextSize(18)
         to_receive_view = TextView(self._activity)
-        to_receive_view.setText('To receive %.2f' % (to_receive))
+        to_receive_view.setText('To receive %.2f' % (float(to_receive)))
         to_receive_view.setTextSize(18)
 
         relative_right.addView(to_receive_view, _create_layout_params('right'))
