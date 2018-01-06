@@ -19,7 +19,7 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
             "person TEXT NOT NULL,"
             "total REAL NOT NULL,"
             "description TEXT NOT NULL,"
-            "payed BOOLEAN NOT NULL CHECK (payed IN (0,1))"
+            "paid BOOLEAN NOT NULL CHECK (paid IN (0,1))"
             ")"
         )
         db.execSQL(
@@ -50,7 +50,7 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         values.put("person", sale['person'])
         values.put("total", sale['value'])
         values.put("description", sale['description'])
-        values.put("payed", sale['payed'])
+        values.put("paid", sale['paid'])
         db = self.getWritableDatabase()
         db.insertWithOnConflict("sale", None, values, SQLiteDatabase.CONFLICT_REPLACE)
 
@@ -89,8 +89,8 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
             person = cursor.getString(cursor.getColumnIndex('person'))
             value = float(cursor.getFloat(cursor.getColumnIndex('total')))
             description = cursor.getInt(cursor.getColumnIndex('description'))
-            payed = bool(cursor.getInt(cursor.getColumnIndex('payed')))
-            result.append(dict(id=sale_id, person=person, value=value, description=description, payed=payed))
+            paid = bool(cursor.getInt(cursor.getColumnIndex('paid')))
+            result.append(dict(id=sale_id, person=person, value=value, description=description, paid=paid))
         db.close()
 
         return result
@@ -111,7 +111,7 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
     def update_sale(self, sale):
         db = self.getWritableDatabase()
         db.execSQL(
-            "UPDATE sale SET payed=%d WHERE id=%d"%(int(sale['payed']), sale['id'])
+            "UPDATE sale SET paid=%d WHERE id=%d"%(int(sale['paid']), sale['id'])
         )
         db.close()
 
@@ -123,9 +123,9 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         cursor = db.rawQuery("SELECT * FROM sale", None)
         
         while cursor.moveToNext():
-            payed = bool(cursor.getInt(cursor.getColumnIndex('payed')))
+            paid = bool(cursor.getInt(cursor.getColumnIndex('paid')))
             value = float(cursor.getFloat(cursor.getColumnIndex('total')))
-            if payed:
+            if paid:
                 received.append(value)
             else:
                 to_receive.append(value)

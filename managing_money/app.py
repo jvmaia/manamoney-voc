@@ -53,7 +53,7 @@ class SaleItem:
         self.callback = callback
         self.layout = LinearLayout(self.context)
 
-        self.text_view = StrikeableTextView(self.context, striked=sale['payed'])
+        self.text_view = StrikeableTextView(self.context, striked=sale['paid'])
         self.text_view.setText('%s   ||   R$%.2f' % (self.sale['person'], self.sale['value']))
         self.text_view.setTextSize(18)
         self.layout.addView(self.text_view)
@@ -69,8 +69,8 @@ class SaleItem:
         self.layout.addView(relative)
 
     def pay(self):
-        self.sale['payed'] = True
-        self.text_view.setStriked(self.sale['payed'])
+        self.sale['paid'] = True
+        self.text_view.setStriked(self.sale['paid'])
         self.callback(event='update_sale', value=self.sale)
 
     def getView(self):
@@ -252,7 +252,7 @@ class MainApp:
         self.vlayout.addView(self.sale_person)
 
         self.sale_description = EditText(self._activity)
-        self.sale_description.setHint('product: quantity')
+        self.sale_description.setHint('product:quantity')
         self.vlayout.addView(self.sale_description)
 
         self.sale_value = EditText(self._activity)
@@ -263,10 +263,11 @@ class MainApp:
         hlayout = LinearLayout(self._activity)
 
         text = TextView(self._activity)
-        text.setText('Payed')
+        text.setText('Paid')
+        text.setTextSize(22)
         hlayout.addView(text)
-        self.sale_payed = CheckBox(self._activity)
-        hlayout.addView(self.sale_payed)
+        self.sale_paid = CheckBox(self._activity)
+        hlayout.addView(self.sale_paid)
 
         self.vlayout.addView(hlayout)
 
@@ -336,7 +337,7 @@ class MainApp:
             self.sale_value.setHint('Enter a valid value please')
             return
 
-        sale['payed'] = int(self.sale_payed.isChecked())
+        sale['paid'] = int(self.sale_paid.isChecked())
 
         self.db.create_sale(sale)
         self.main_view()
