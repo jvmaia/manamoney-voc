@@ -317,6 +317,9 @@ class MainApp:
             return
 
         self.db.create_product(product)
+        self.product_name.setInputType(0) # close keyboard after create
+        self.product_quantity.setInputType(0) # close keyboard after create
+        self.product_price.setInputType(0) # close keyboard after create
         self.main_view()
 
     def create_sale(self):
@@ -340,6 +343,9 @@ class MainApp:
         sale['paid'] = int(self.sale_paid.isChecked())
 
         self.db.create_sale(sale)
+        self.sale_person.setInputType(0) # close keyboard after create
+        self.sale_description.setInputType(0) # close keyboard after create
+        self.sale_value.setInputType(0) # close keyboard after create
         self.main_view()
 
     def _dispatch_event(self, event, value):
