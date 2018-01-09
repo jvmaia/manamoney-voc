@@ -15,6 +15,8 @@ def _create_layout_params(side):
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
     elif side == 'bottom':
         params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+    elif side == 'center':
+        params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE)
 
     return params
 
@@ -53,20 +55,31 @@ class SaleItem:
         self.callback = callback
         self.layout = LinearLayout(self.context)
 
+        self.button_details = Button(self.context)
+        self.button_details.setOnClickListener(ButtonClick(self.details))
+        self.button_details.setText('+')
+        self.button_details.getBackground().setColorFilter(0xff9e9e9e, PorterDuff.Mode.MULTIPLY)
+        self.layout.addView(self.button_details)
+
         self.text_view = StrikeableTextView(self.context, striked=sale['paid'])
-        self.text_view.setText('%s   ||   R$%.2f' % (self.sale['person'], self.sale['value']))
-        self.text_view.setTextSize(18)
-        self.layout.addView(self.text_view)
-
-        self.button = Button(self.context)
-        self.button.setOnClickListener(ButtonClick(self.pay))
-        self.button.setText('V')
-        self.button.getBackground().setColorFilter(0xff8bc34a, PorterDuff.Mode.MULTIPLY)
-
+        self.text_view.setText(self.sale['person'])
+        self.text_view.setTextSize(22)
         relative = RelativeLayout(self.context)
-        relative.addView(self.button, _create_layout_params('right'))
-
+        relative.addView(self.text_view, _create_layout_params('center'))
         self.layout.addView(relative)
+
+        self.button_pay = Button(self.context)
+        self.button_pay.setOnClickListener(ButtonClick(self.pay))
+        self.button_pay.setText('V')
+        self.button_pay.getBackground().setColorFilter(0xff8bc34a, PorterDuff.Mode.MULTIPLY)
+
+        relative1 = RelativeLayout(self.context)
+        relative1.addView(self.button_pay, _create_layout_params('right'))
+
+        self.layout.addView(relative1)
+
+    def details(self):
+        self.callback(event='details_sale', value=self.sale)
 
     def pay(self):
         self.sale['paid'] = True
@@ -111,13 +124,13 @@ class ProductItem:
 
     def add(self):
         self.product['quantity'] += 1
-        self.text_view.setText('%s   ||   %d   ||   R$%.2f' % (self.product['name'],
+        self.text_view.setText('%s | %d | R$%.2f' % (self.product['name'],
                                 self.product['quantity'], self.product['value']))
         self.callback(event='update_product', value=self.product)
 
     def remove(self):
         self.product['quantity'] -= 1
-        self.text_view.setText('%s   ||   %d   ||   R$%.2f' % (self.product['name'],
+        self.text_view.setText('%s | %d | R$%.2f' % (self.product['name'],
                                 self.product['quantity'], self.product['value']))
         self.callback(event='update_product', value=self.product)
 
@@ -242,7 +255,7 @@ class MainApp:
         create_button.setOnClickListener(ButtonClick(self.create_product))
         create_button.setText('Create product')
         self.vlayout.addView(create_button)
-        self.add_return_button()
+        self.add_return_button('main')
 
     def create_sale_view(self):
         self.vlayout.removeAllViews()
@@ -275,7 +288,7 @@ class MainApp:
         create_button.setOnClickListener(ButtonClick(self.create_sale))
         create_button.setText('Sale')
         self.vlayout.addView(create_button)
-        self.add_return_button()        
+        self.add_return_button('main')        
 
     def products_view(self):
         self.vlayout.removeAllViews()
@@ -287,7 +300,7 @@ class MainApp:
         self.listView.setAdapter(self.adapter)
 
         self.vlayout.addView(self.listView)
-        self.add_return_button()
+        self.add_return_button('main')
 
     def sales_view(self):
         self.vlayout.removeAllViews()
@@ -299,7 +312,27 @@ class MainApp:
         self.listView.setAdapter(self.adapter)
 
         self.vlayout.addView(self.listView)
-        self.add_return_button()
+        self.add_return_button('main')
+
+    def details_sale_view(self, sale):
+        self.vlayout.removeAllViews()
+
+        person_text = TextView(self._activity)
+        person_text.setText('Client: %s' % (sale['person']))
+        person_text.setTextSize(22)
+        self.vlayout.addView(person_text)
+        
+        value_text = TextView(self._activity)
+        value_text.setText('Value: R$%.2f' % (sale['value']))
+        value_text.setTextSize(22)
+        self.vlayout.addView(value_text)
+
+        description_text = TextView(self._activity)
+        description_text.setText('Description: %s' % (sale['description']))
+        description_text.setTextSize(22)
+        self.vlayout.addView(description_text)
+
+        self.add_return_button('sales_view')
 
     def create_product(self):
         product = {}
@@ -350,17 +383,25 @@ class MainApp:
 
     def _dispatch_event(self, event, value):
         if event == 'update_sale':
-            self.db.update_sale(value)
+            self.db.update_sale(sale=value)
         elif event == 'update_product':
             self.db.changeQuantity_product(value=value)
+        elif event == 'details_sale':
+            self.details_sale_view(sale=value)
 
-    def add_return_button(self):
+    def add_return_button(self, view):
         return_button = Button(self._activity)
-        return_button.setOnClickListener(ButtonClick(self.main_view))
+        return_button.setOnClickListener(ButtonClick(self.return_view, view))
         return_button.setText('Return')
         relative = RelativeLayout(self._activity)
         relative.addView(return_button, _create_layout_params('bottom'))
         self.vlayout.addView(relative)
+
+    def return_view(self, view):
+        if view == 'main':
+            self.main_view()
+        elif view == 'sales_view':
+            self.sales_view()
 
     def get_balance(self):
         return self.db.get_balance()
