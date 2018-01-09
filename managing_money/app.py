@@ -328,6 +328,11 @@ class MainApp:
         description_text.setTextSize(22)
         self.vlayout.addView(description_text)
 
+        date_text = TextView(self._activity)
+        date_text.setText('Date: %s' % (sale['date']))
+        date_text.setTextSize(22)
+        self.vlayout.addView(date_text)
+
         self.add_return_button('sales_view')
 
     def create_product(self):
@@ -381,7 +386,7 @@ class MainApp:
         if event == 'update_sale':
             self.db.update_sale(sale=value)
         elif event == 'update_product':
-            self.db.changeQuantity_product(value=value)
+            self.db.changeQuantity_product(sale=value)
         elif event == 'details_sale':
             self.details_sale_view(sale=value)
 

@@ -1,6 +1,8 @@
 import android
 from android.database.sqlite import SQLiteDatabase
 from android.content import ContentValues
+from java.util import Calendar
+from java.text import SimpleDateFormat
 
 class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
     @super({
@@ -19,7 +21,8 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
             "person TEXT NOT NULL,"
             "total REAL NOT NULL,"
             "description TEXT NOT NULL,"
-            "paid BOOLEAN NOT NULL CHECK (paid IN (0,1))"
+            "paid BOOLEAN NOT NULL CHECK (paid IN (0,1)),"
+            "date TEXT NOT NULL"
             ")"
         )
         db.execSQL(
@@ -51,6 +54,12 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         values.put("total", sale['value'])
         values.put("description", sale['description'])
         values.put("paid", sale['paid'])
+
+        calendar = Calendar.getInstance()
+        dateformat = SimpleDateFormat('yyyy/MM/dd HH:mm')
+        now = dateformat.format(calendar.getTime())
+        values.put("date", now)
+
         db = self.getWritableDatabase()
         db.insertWithOnConflict("sale", None, values, SQLiteDatabase.CONFLICT_REPLACE)
 
@@ -90,12 +99,13 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
             value = float(cursor.getFloat(cursor.getColumnIndex('total')))
             description = cursor.getString(cursor.getColumnIndex('description'))
             paid = bool(cursor.getInt(cursor.getColumnIndex('paid')))
-            result.append(dict(id=sale_id, person=person, value=value, description=description, paid=paid))
+            date = cursor.getString(cursor.getColumnIndex('date'))
+            result.append(dict(id=sale_id, person=person, value=value, description=description, paid=paid, date=date))
         db.close()
 
         return result
 
-    def changeQuantity_product(self, value):
+    def changeQuantity_product(self, sale):
         db = self.getReadableDatabase()
         product = db.rawQuery("SELECT * FROM product WHERE id=%d" % (value['id']), None)
         product.moveToNext()
