@@ -15,8 +15,6 @@ def _create_layout_params(side):
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
     elif side == 'bottom':
         params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
-    elif side == 'center':
-        params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE)
 
     return params
 
@@ -64,9 +62,7 @@ class SaleItem:
         self.text_view = StrikeableTextView(self.context, striked=sale['paid'])
         self.text_view.setText(self.sale['person'])
         self.text_view.setTextSize(22)
-        relative = RelativeLayout(self.context)
-        relative.addView(self.text_view, _create_layout_params('center'))
-        self.layout.addView(relative)
+        self.layout.addView(self.text_view)
 
         self.button_pay = Button(self.context)
         self.button_pay.setOnClickListener(ButtonClick(self.pay))

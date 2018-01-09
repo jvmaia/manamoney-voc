@@ -88,7 +88,7 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
             sale_id = int(cursor.getInt(cursor.getColumnIndex('id')))
             person = cursor.getString(cursor.getColumnIndex('person'))
             value = float(cursor.getFloat(cursor.getColumnIndex('total')))
-            description = cursor.getInt(cursor.getColumnIndex('description'))
+            description = cursor.getString(cursor.getColumnIndex('description'))
             paid = bool(cursor.getInt(cursor.getColumnIndex('paid')))
             result.append(dict(id=sale_id, person=person, value=value, description=description, paid=paid))
         db.close()
