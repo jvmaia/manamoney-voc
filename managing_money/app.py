@@ -92,7 +92,7 @@ class ProductItem:
         self.callback = callback
 
         self.layout = LinearLayout(self.context)
-        self.text_view = TextView(self.context) 
+        self.text_view = TextView(self.context)
         self.text_view.setTextSize(20)
         self.text_view.setText('%s | %d | R$%.2f' % (self.product['name'],
                                 self.product['quantity'], self.product['value']))
@@ -239,7 +239,7 @@ class MainApp:
 
         self.product_quantity = EditText(self._activity)
         self.product_quantity.setHint('Product quantity')
-        self.product_quantity.setInputType(0x00000002) 
+        self.product_quantity.setInputType(0x00000002)
         self.vlayout.addView(self.product_quantity)
 
         self.product_price = EditText(self._activity)
@@ -277,18 +277,23 @@ class MainApp:
         hlayout.addView(text)
         self.sale_paid = CheckBox(self._activity)
         hlayout.addView(self.sale_paid)
-
         self.vlayout.addView(hlayout)
+
+        generate_price_button = Button(self._activity)
+        generate_price_button.setOnClickListener(ButtonClick(self.generate_price))
+        generate_price_button.setText('Generate price')
+        self.vlayout.addView(generate_price_button)
 
         create_button = Button(self._activity)
         create_button.setOnClickListener(ButtonClick(self.create_sale))
         create_button.setText('Sale')
         self.vlayout.addView(create_button)
-        self.add_return_button('main')        
+
+        self.add_return_button('main')
 
     def products_view(self):
         self.vlayout.removeAllViews()
-        
+
         self.productsItems = self.db.fetch_products()
         self.adapter = ProductsListAdapter(self._activity, self.productsItems,
                                             listener=self._dispatch_event)
@@ -317,7 +322,7 @@ class MainApp:
         person_text.setText('Client: %s' % (sale['person']))
         person_text.setTextSize(22)
         self.vlayout.addView(person_text)
-        
+
         value_text = TextView(self._activity)
         value_text.setText('Value: R$%.2f' % (sale['value']))
         value_text.setTextSize(22)
@@ -406,6 +411,14 @@ class MainApp:
 
     def get_balance(self):
         return self.db.get_balance()
+
+    def generate_price(self):
+        description = str(self.sale_description.getText())
+        if len(description) == 0:
+            self.sale_description.setText('Empty description')
+        value = self.db.get_price(description)
+        value = '%.2f' % value
+        self.sale_value.setText(value.replace(',', '.'))
 
 def main():
     MainApp()

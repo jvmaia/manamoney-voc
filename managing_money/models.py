@@ -72,6 +72,7 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
             db.execSQL(
                 "UPDATE product SET quantity = quantity - %d WHERE name='%s'" % (quantity, name)
             )
+        db.close()
 
     def fetch_products(self):
         result = []
@@ -100,21 +101,18 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
             description = cursor.getString(cursor.getColumnIndex('description'))
             paid = bool(cursor.getInt(cursor.getColumnIndex('paid')))
             date = cursor.getString(cursor.getColumnIndex('date'))
-            result.append(dict(id=sale_id, person=person, value=value, description=description, paid=paid, date=date))
+            result.append(dict(id=sale_id, person=person,
+                        value=value, description=description,
+                        paid=paid, date=date))
         db.close()
 
         return result
 
     def changeQuantity_product(self, sale):
-        db = self.getReadableDatabase()
-        product = db.rawQuery("SELECT * FROM product WHERE id=%d" % (value['id']), None)
-        product.moveToNext()
-        quantity = value['quantity']
-        db.close()
-
+        quantity = sale['quantity']
         db = self.getWritableDatabase()
         db.execSQL(
-            "UPDATE product SET quantity=%d WHERE id=%d"%(quantity, value['id'])
+            "UPDATE product SET quantity=%d WHERE id=%d"%(quantity, sale['id'])
         )
         db.close()
 
@@ -130,8 +128,8 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         to_receive = []
 
         db = self.getReadableDatabase()
-        cursor = db.rawQuery("SELECT * FROM sale", None)
-        
+        cursor = db.rawQuery("SELECT paid,total FROM sale", None)
+
         while cursor.moveToNext():
             paid = bool(cursor.getInt(cursor.getColumnIndex('paid')))
             value = float(cursor.getFloat(cursor.getColumnIndex('total')))
@@ -145,4 +143,25 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         received = sum(received)
 
         return received, to_receive
- 
+
+    def get_price(self, description):
+        products = description.split('\n')
+        names = []
+        quantities = []
+        for product in products:
+            name,quantity = product.split(':')
+            quantity = int(quantity)
+            names.append("'%s'" % (name))
+            quantities.append(quantity)
+        names = ','.join(names)
+
+        value = 0
+        c = 0
+        db = self.getReadableDatabase()
+        cursor = db.rawQuery("SELECT price FROM product WHERE name IN (%s)" % (names), None)
+        while cursor.moveToNext():
+            price = float(cursor.getFloat(cursor.getColumnIndex('price')))
+            value += price * quantities[c]
+            c+=1
+        db.close()
+        return value
