@@ -251,6 +251,8 @@ class MainApp:
         create_button.setOnClickListener(ButtonClick(self.create_product))
         create_button.setText('Create product')
         self.vlayout.addView(create_button)
+
+        self.add_error_text()
         self.add_return_button('main')
 
     def create_sale_view(self):
@@ -289,6 +291,7 @@ class MainApp:
         create_button.setText('Sale')
         self.vlayout.addView(create_button)
 
+        self.add_error_text()
         self.add_return_button('main')
 
     def products_view(self):
@@ -344,15 +347,14 @@ class MainApp:
         product = {}
         product['name'] = str(self.product_name.getText())
         if len(product['name']) == 0:
-            self.product_name.setHint('Enter a valid name please')
+            self.error_text.setText('Enter a valid name please')
             return
 
         try:
             product['quantity'] = int(str(self.product_quantity.getText()))
             product['price'] = float(str(self.product_price.getText()))
         except ValueError:
-            self.product_quantity.setHint('Enter a valid number please')
-            self.product_price.setHint('Enter a valid number please')
+            self.error_text.setText('Enter a valid number please')
             return
 
         self.db.create_product(product)
@@ -362,18 +364,18 @@ class MainApp:
         sale = {}
         sale['person'] = str(self.sale_person.getText())
         if len(sale['person']) == 0:
-            self.sale_person.setHint('Enter a valid name please')
+            self.error_text.setText('Enter a valid name please')
             return
 
         sale['description'] = str(self.sale_description.getText())
         if len(sale['description']) == 0:
-            self.sale_description.setHint('Enter a valid description please')
+            self.error_text.setText('Enter a valid description please')
             return
 
         try:
             sale['value'] = float(str(self.sale_value.getText()))
         except ValueError:
-            self.sale_value.setHint('Enter a valid value please')
+            self.error_text.setText('Enter a valid value please')
             return
 
         sale['paid'] = int(self.sale_paid.isChecked())
@@ -397,6 +399,10 @@ class MainApp:
         relative.addView(return_button, _create_layout_params('bottom'))
         self.vlayout.addView(relative)
 
+    def add_error_text(self):
+        self.error_text = TextView(self._activity)
+        self.vlayout.addView(self.error_text)
+
     def return_view(self, view):
         if view == 'main':
             self.main_view()
@@ -408,9 +414,10 @@ class MainApp:
 
     def generate_price(self):
         description = str(self.sale_description.getText())
-        if len(description) == 0:
-            self.sale_description.setText('Empty description')
         value = self.db.get_price(description)
+        if type(value) == str:
+            self.error_text.setText(value)
+            return
         value = '%.2f' % value
         self.sale_value.setText(value.replace(',', '.'))
 

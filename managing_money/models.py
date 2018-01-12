@@ -28,7 +28,7 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         db.execSQL(
             "CREATE TABLE product ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-            "name TEXT NOT NULL,"
+            "name TEXT NOT NULL UNIQUE,"
             "quantity INTEGER NOT NULL,"
             "price REAL NOT NULL"
             ")"
@@ -149,13 +149,17 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         names = []
         quantities = []
         for product in products:
-            name,quantity = product.split(':')
+            try:
+                name,quantity = product.split(':')
+            except StopIteration:
+                index = str(products.index(product))
+                return 'format invalid in description index #' + index
             quantity = int(quantity)
             names.append("'%s'" % (name))
             quantities.append(quantity)
         names = ','.join(names)
 
-        value = 0
+        value = 0.0
         c = 0
         db = self.getReadableDatabase()
         cursor = db.rawQuery("SELECT price FROM product WHERE name IN (%s)" % (names), None)
