@@ -2,7 +2,7 @@ import android
 from android.graphics import Paint, PorterDuff
 import android.view
 from android.widget import (
-    Button, EditText, LinearLayout,
+    Button, EditText, LinearLayout, FrameLayout,
     RelativeLayout, ListView, TextView, CheckBox
     )
 from android.view import Gravity
@@ -395,8 +395,10 @@ class MainApp:
         return_button = Button(self._activity)
         return_button.setOnClickListener(ButtonClick(self.return_view, view))
         return_button.setText('Return')
+        flayout = FrameLayout(self._activity)
+        flayout.addView(return_button)
         relative = RelativeLayout(self._activity)
-        relative.addView(return_button, _create_layout_params('bottom'))
+        relative.addView(flayout, _create_layout_params('bottom'))
         self.vlayout.addView(relative)
 
     def add_error_text(self):
