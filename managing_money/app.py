@@ -133,6 +133,21 @@ class ProductItem:
     def getView(self):
         return self.layout
 
+class ClientItem:
+    def __init__(self, client, context):
+        self.client = client
+        self.context = context
+        self.layout = LinearLayout(self.context)
+
+        self.text_view = TextView(self.context)
+        self.text_view.setText(self.client)
+        self.text_view.setTextSize(22)
+
+        self.layout.addView(self.text_view)
+
+    def getView(self):
+        return self.layout
+
 class SalesListAdapter(extends=android.widget.BaseAdapter):
     def __init__(self, context, sales, listener=None):
         self.context = context
@@ -177,6 +192,24 @@ class ProductsListAdapter(extends=android.widget.BaseAdapter):
         productItem = ProductItem(product, self.context, callback=self.listener)
         return productItem.getView()
 
+class ClientsListAdapter(extends=android.widget.BaseAdapter):
+    def __init__(self, context, clients):
+        self.context = context
+        self.clients = list(clients)
+
+    def getCount(self) -> int:
+        return len(self.clients)
+
+    def getItem(self, position: int) -> java.lang.Object:
+        return self.clients[position]
+
+    def getView(self, position: int,
+                view: android.view.View,
+                container: android.view.ViewGroup) -> android.view.View:
+        client = self.getItem(position)
+        clientItem = ClientItem(client, self.context)
+        return clientItem.getView()
+
 class MainApp:
     def __init__(self):
         self._activity = android.PythonActivity.setListener(self)
@@ -210,6 +243,11 @@ class MainApp:
         products_view.setText('View products')
         products_view.setOnClickListener(ButtonClick(self.products_view))
         self.vlayout.addView(products_view)
+
+        clients_view = Button(self._activity)
+        clients_view.setText('View clients')
+        clients_view.setOnClickListener(ButtonClick(self.clients_view))
+        self.vlayout.addView(clients_view)
 
         hlayout = LinearLayout(self._activity)
         hlayout.setOrientation(LinearLayout.HORIZONTAL)
@@ -303,7 +341,7 @@ class MainApp:
         self.listViewProducts = ListView(self._activity)
         self.listViewProducts.setAdapter(self.adapterProducts)
 
-        self.add_return_button('main')
+        self.add_return_button('main', bottom=False)
         self.vlayout.addView(self.listViewProducts)
 
     def sales_view(self):
@@ -315,8 +353,19 @@ class MainApp:
         self.listViewSales = ListView(self._activity)
         self.listViewSales.setAdapter(self.adapterSales)
 
-        self.add_return_button('main')
+        self.add_return_button('main', bottom=False)
         self.vlayout.addView(self.listViewSales)
+
+    def clients_view(self):
+        self.vlayout.removeAllViews()
+
+        self.clientsItems = self.db.fetch_clients()
+        self.adapterClients = ClientsListAdapter(self._activity, self.clientsItems)
+        self.listViewClients = ListView(self._activity)
+        self.listViewClients.setAdapter(self.adapterClients)
+
+        self.add_return_button('main', bottom=False)
+        self.vlayout.addView(self.listViewClients)
 
     def details_sale_view(self, sale):
         self.vlayout.removeAllViews()
@@ -391,12 +440,15 @@ class MainApp:
         elif event == 'details_sale':
             self.details_sale_view(sale=value)
 
-    def add_return_button(self, view):
+    def add_return_button(self, view, bottom=True):
         self.return_button = Button(self._activity)
         self.return_button.setOnClickListener(ButtonClick(self.return_view, view))
         self.return_button.setText('Return')
         self.relative_rb = RelativeLayout(self._activity)
-        self.relative_rb.addView(self.return_button)
+        if bottom:
+            self.relative_rb.addView(self.return_button, _create_layout_params('bottom'))
+        else:
+            self.relative_rb.addView(self.return_button)
         self.vlayout.addView(self.relative_rb)
 
     def add_error_text(self):
