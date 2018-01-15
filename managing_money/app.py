@@ -298,25 +298,25 @@ class MainApp:
         self.vlayout.removeAllViews()
 
         self.productsItems = self.db.fetch_products()
-        self.adapter = ProductsListAdapter(self._activity, self.productsItems,
+        self.adapterProducts = ProductsListAdapter(self._activity, self.productsItems,
                                             listener=self._dispatch_event)
-        self.listView = ListView(self._activity)
-        self.listView.setAdapter(self.adapter)
+        self.listViewProducts = ListView(self._activity)
+        self.listViewProducts.setAdapter(self.adapterProducts)
 
-        self.vlayout.addView(self.listView)
         self.add_return_button('main')
+        self.vlayout.addView(self.listViewProducts)
 
     def sales_view(self):
         self.vlayout.removeAllViews()
 
         self.salesItems = self.db.fetch_sales()
-        self.adapter = SalesListAdapter(self._activity, self.salesItems,
+        self.adapterSales = SalesListAdapter(self._activity, self.salesItems,
                                         listener=self._dispatch_event)
-        self.listView = ListView(self._activity)
-        self.listView.setAdapter(self.adapter)
+        self.listViewSales = ListView(self._activity)
+        self.listViewSales.setAdapter(self.adapterSales)
 
-        self.vlayout.addView(self.listView)
         self.add_return_button('main')
+        self.vlayout.addView(self.listViewSales)
 
     def details_sale_view(self, sale):
         self.vlayout.removeAllViews()
@@ -392,14 +392,12 @@ class MainApp:
             self.details_sale_view(sale=value)
 
     def add_return_button(self, view):
-        return_button = Button(self._activity)
-        return_button.setOnClickListener(ButtonClick(self.return_view, view))
-        return_button.setText('Return')
-        flayout = FrameLayout(self._activity)
-        flayout.addView(return_button)
-        relative = RelativeLayout(self._activity)
-        relative.addView(flayout, _create_layout_params('bottom'))
-        self.vlayout.addView(relative)
+        self.return_button = Button(self._activity)
+        self.return_button.setOnClickListener(ButtonClick(self.return_view, view))
+        self.return_button.setText('Return')
+        self.relative_rb = RelativeLayout(self._activity)
+        self.relative_rb.addView(self.return_button)
+        self.vlayout.addView(self.relative_rb)
 
     def add_error_text(self):
         self.error_text = TextView(self._activity)
