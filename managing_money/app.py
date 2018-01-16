@@ -203,6 +203,9 @@ class ClientsListAdapter(extends=android.widget.BaseAdapter):
     def getItem(self, position: int) -> java.lang.Object:
         return self.clients[position]
 
+    def getItemId(self, position: int) -> long:
+        return position
+
     def getView(self, position: int,
                 view: android.view.View,
                 container: android.view.ViewGroup) -> android.view.View:
