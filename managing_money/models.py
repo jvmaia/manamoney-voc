@@ -120,6 +120,26 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
 
         return result
 
+    def fetch_sales_client(self, client):
+        result = []
+        client = str(client)
+
+        db = self.getReadableDatabase()
+        cursor = db.rawQuery("SELECT * FROM sale WHERE person='%s'" % (client), None)
+        while cursor.moveToNext():
+            sale_id = int(cursor.getInt(cursor.getColumnIndex('id')))
+            person = cursor.getString(cursor.getColumnIndex('person'))
+            value = float(cursor.getFloat(cursor.getColumnIndex('total')))
+            description = cursor.getString(cursor.getColumnIndex('description'))
+            paid = bool(cursor.getInt(cursor.getColumnIndex('paid')))
+            date = cursor.getString(cursor.getColumnIndex('date'))
+            result.append(dict(id=sale_id, person=person,
+                        value=value, description=description,
+                        paid=paid, date=date))
+        db.close()
+
+        return result
+
     def changeQuantity_product(self, sale):
         quantity = sale['quantity']
         db = self.getWritableDatabase()
