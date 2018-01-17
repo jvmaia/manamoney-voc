@@ -16,3 +16,6 @@ Install the Python development requirements:
 Build and run the app:
 
     python setup.py android --start
+
+![Screenshot](screenshot.png)
+
