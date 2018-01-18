@@ -472,7 +472,7 @@ class MainApp:
         elif event == 'sales_client':
             print('AAAAAAAAAAAA PORRAAAAAAAAAAAAA')
             print('CLIEEEEEEEEEENT ', value)
-            sales = self.db.fetch_sales_client(client=value)
+            sales = self.db.fetch_sales(client=value)
             self.sales_view(sales=sales, back='sales_clients')
         elif event == 'clients':
             self.return_view('clients')
