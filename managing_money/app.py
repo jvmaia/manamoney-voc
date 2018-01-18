@@ -406,6 +406,14 @@ class MainApp:
         value_text.setTextSize(22)
         self.vlayout.addView(value_text)
 
+        discount_text = TextView(self._activity)
+        total_price = self.db.get_price(sale['description'].replace(' ', '\n'))
+        discount = total_price - sale['value']
+        discount_p = discount*100.0 / sale['value']
+        discount_text.setText('\nDiscount: %.2f%% = R$%.2f' % (discount_p, discount))
+        discount_text.setTextSize(22)
+        self.vlayout.addView(discount_text)
+
         description_text = TextView(self._activity)
         description_text.setText('\nDescription: %s' % (sale['description']))
         description_text.setTextSize(22)
