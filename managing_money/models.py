@@ -52,7 +52,7 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         values = ContentValues()
         values.put("person", sale['person'])
         values.put("total", sale['value'])
-        values.put("description", sale['description'])
+        values.put("description", sale['description'].replace('\n', ' '))
         values.put("paid", sale['paid'])
 
         calendar = Calendar.getInstance()

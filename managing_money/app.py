@@ -402,17 +402,18 @@ class MainApp:
         self.vlayout.addView(person_text)
 
         value_text = TextView(self._activity)
-        value_text.setText('Value: R$%.2f' % (sale['value']))
+        value_text.setText('\nValue: R$%.2f' % (sale['value']))
         value_text.setTextSize(22)
         self.vlayout.addView(value_text)
 
         description_text = TextView(self._activity)
-        description_text.setText('Description: %s' % (sale['description']))
+        description_text.setText('\nDescription: %s' % (sale['description']))
         description_text.setTextSize(22)
         self.vlayout.addView(description_text)
 
         date_text = TextView(self._activity)
-        date_text.setText('Date: %s' % (sale['date']))
+        date = sale['date'].replace(' ', '-')
+        date_text.setText('\nDate: %s' % (date))
         date_text.setTextSize(22)
         self.vlayout.addView(date_text)
 
