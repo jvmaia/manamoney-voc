@@ -470,8 +470,6 @@ class MainApp:
         elif event == 'details_sale':
             self.details_sale_view(sale=value, back=back)
         elif event == 'sales_client':
-            print('AAAAAAAAAAAA PORRAAAAAAAAAAAAA')
-            print('CLIEEEEEEEEEENT ', value)
             sales = self.db.fetch_sales(client=value)
             self.sales_view(sales=sales, back='sales_clients')
         elif event == 'clients':
