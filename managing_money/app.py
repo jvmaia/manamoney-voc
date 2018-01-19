@@ -148,7 +148,7 @@ class ClientItem:
 
         self.add_button = Button(self.context)
         self.add_button.setOnClickListener(ButtonClick(self.view_sales))
-        self.add_button.getBackground().setColorFilter(0xff8bc34a, PorterDuff.Mode.MULTIPLY)
+        self.add_button.getBackground().setColorFilter(0xff9e9e9e, PorterDuff.Mode.MULTIPLY)
         self.add_button.setText('+')
         relative = RelativeLayout(self.context)
         relative.addView(self.add_button, _create_layout_params('right'))
