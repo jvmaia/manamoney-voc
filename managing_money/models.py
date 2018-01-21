@@ -41,7 +41,7 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
 
     def create_product(self, product):
         values = ContentValues()
-        values.put("name", product['name'])
+        values.put("name", product['name'].lower())
         values.put("price", product['price'])
         values.put("quantity", product['quantity'])
         db = self.getWritableDatabase()
@@ -50,9 +50,9 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
 
     def create_sale(self, sale):
         values = ContentValues()
-        values.put("person", sale['person'])
+        values.put("person", sale['person'].lower())
         values.put("total", sale['value'])
-        values.put("description", sale['description'].replace('\n', ' '))
+        values.put("description", sale['description'].replace('\n', ' ').lower())
         values.put("paid", sale['paid'])
 
         calendar = Calendar.getInstance()
@@ -96,7 +96,7 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
 
         if client:
             client = str(client)
-            cursor = db.rawQuery("SELECT * FROM sale WHERE person='%s'" % (client), None)
+            cursor = db.rawQuery("SELECT * FROM sale WHERE person='%s'" % (client.lower()), None)
         else:
             cursor = db.rawQuery("SELECT * FROM sale", None)
 
@@ -163,7 +163,7 @@ class manamoneyDB(extends=android.database.sqlite.SQLiteOpenHelper):
         return received, to_receive
 
     def get_price(self, description):
-        products = description.split('\n')
+        products = description.lower().split('\n')
         names = []
         quantities = []
         for product in products:
