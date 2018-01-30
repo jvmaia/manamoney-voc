@@ -3,7 +3,8 @@ from android.graphics import Paint, PorterDuff
 import android.view
 from android.widget import (
     Button, EditText, LinearLayout, FrameLayout,
-    RelativeLayout, ListView, TextView, CheckBox
+    RelativeLayout, ListView, TextView, CheckBox,
+    Spinner, ArrayAdapter
     )
 from android.view import Gravity
 from .models import manamoneyDB
@@ -316,6 +317,23 @@ class MainApp:
         self.sale_person = EditText(self._activity)
         self.sale_person.setHint('Client')
         self.vlayout.addView(self.sale_person)
+
+        horizontalProducts = LinearLayout(self._activity)
+        horizontalProducts.setOrientation(LinearLayout.HORIZONTAL)
+
+        productsText = TextView(self._activity)
+        productsText.setText('See products: ')
+        horizontalProducts.addView(productsText)
+
+        productSpinner = Spinner(self._activity)
+        RawProducts = list(self.db.fetch_products())
+        products = [product['name'] for product in RawProducts]
+        ProductsAdapter = ArrayAdapter(self._activity, 0x01090008, products)
+        ProductsAdapter.setDropDownViewResource(0x01090009)
+        productSpinner.setAdapter(ProductsAdapter)
+        horizontalProducts.addView(productSpinner)
+
+        self.vlayout.addView(horizontalProducts)
 
         self.sale_description = EditText(self._activity)
         self.sale_description.setHint('product:quantity')
