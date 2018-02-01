@@ -322,12 +322,12 @@ class MainApp:
         horizontalProducts.setOrientation(LinearLayout.HORIZONTAL)
 
         productsText = TextView(self._activity)
-        productsText.setText('See products: ')
+        productsText.setText('See products || quantity || value: ')
         horizontalProducts.addView(productsText)
 
         productSpinner = Spinner(self._activity)
         RawProducts = list(self.db.fetch_products())
-        products = [product['name'] for product in RawProducts]
+        products = [(product['name'] +' || '+ str(product['quantity']) +' || '+ str(product['value'])) for product in RawProducts]
         ProductsAdapter = ArrayAdapter(self._activity, 0x01090008, products)
         ProductsAdapter.setDropDownViewResource(0x01090009)
         productSpinner.setAdapter(ProductsAdapter)
