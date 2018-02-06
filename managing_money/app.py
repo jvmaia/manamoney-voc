@@ -236,11 +236,14 @@ class MainApp:
     def onCreate(self):
         self.vlayout = LinearLayout(self._activity)
         self.vlayout.setOrientation(LinearLayout.VERTICAL)
+        self.flayout = FrameLayout(self._activity)
+        self.vlayout.addView(self.flayout)
         self._activity.setContentView(self.vlayout)
         self.main_view()
 
     def main_view(self):
         self.vlayout.removeAllViews()
+        self.flayout.removeAllViews()
 
         create_sale = Button(self._activity)
         create_sale.setText('Create sale')
@@ -309,7 +312,7 @@ class MainApp:
         self.vlayout.addView(create_button)
 
         self.add_error_text()
-        self.add_return_button('main')
+        self.add_return_button('main', flayout=False)
 
     def create_sale_view(self):
         self.vlayout.removeAllViews()
@@ -333,7 +336,6 @@ class MainApp:
         productSpinner.setAdapter(ProductsAdapter)
         horizontalProducts.addView(productSpinner)
 
-        self.vlayout.addView(horizontalProducts)
 
         self.sale_description = EditText(self._activity)
         self.sale_description.setHint('product:quantity')
@@ -360,27 +362,30 @@ class MainApp:
         self.vlayout.addView(generate_price_button)
 
         create_button = Button(self._activity)
-        create_button.setOnClickListener(ButtonClick(self.create_sale))
         create_button.setText('Sale')
         self.vlayout.addView(create_button)
 
         self.add_error_text()
-        self.add_return_button('main')
+        self.add_return_button('main', flayout=False)
 
     def products_view(self):
         self.vlayout.removeAllViews()
+        self.flayout.removeAllViews()
+        self.vlayout.addView(self.flayout)
 
         self.productsItems = self.db.fetch_products()
         self.adapterProducts = ProductsListAdapter(self._activity, self.productsItems,
                                             listener=self._dispatch_event)
         self.listViewProducts = ListView(self._activity)
         self.listViewProducts.setAdapter(self.adapterProducts)
+        self.flayout.addView(self.listViewProducts)
 
-        self.add_return_button('main', bottom=False)
-        self.vlayout.addView(self.listViewProducts)
+        self.add_return_button('main')
 
     def sales_view(self, sales=None, back=None):
         self.vlayout.removeAllViews()
+        self.flayout.removeAllViews()
+        self.vlayout.addView(self.flayout)
 
         if sales:
             self.salesItems = sales
@@ -391,16 +396,17 @@ class MainApp:
                                             listener=self._dispatch_event, back=back)
         self.listViewSales = ListView(self._activity)
         self.listViewSales.setAdapter(self.adapterSales)
+        self.flayout.addView(self.listViewSales)
         
         if back:
-            self.add_return_button('clients', bottom=False)
+            self.add_return_button('clients')
         else:
-            self.add_return_button('main', bottom=False)
-
-        self.vlayout.addView(self.listViewSales)
+            self.add_return_button('main')
 
     def clients_view(self):
         self.vlayout.removeAllViews()
+        self.flayout.removeAllViews()
+        self.vlayout.addView(self.flayout)
 
         self.clientsItems = self.db.fetch_clients()
         self.adapterClients = ClientsListAdapter(self._activity, self.clientsItems,
@@ -408,8 +414,8 @@ class MainApp:
         self.listViewClients = ListView(self._activity)
         self.listViewClients.setAdapter(self.adapterClients)
 
-        self.add_return_button('main', bottom=False)
-        self.vlayout.addView(self.listViewClients)
+        self.flayout.addView(self.listViewClients)
+        self.add_return_button('main')
 
     def details_sale_view(self, sale, back=None):
         self.vlayout.removeAllViews()
@@ -444,9 +450,9 @@ class MainApp:
         self.vlayout.addView(date_text)
 
         if back:
-            self.add_return_button('sales_client', value=sale['person'])
+            self.add_return_button('sales_client', value=sale['person'], flayout=False)
         else:
-            self.add_return_button('sales_view')
+            self.add_return_button('sales_view', flayout=False)
 
     def create_product(self):
         product = {}
@@ -501,16 +507,16 @@ class MainApp:
         elif event == 'clients':
             self.return_view('clients')
 
-    def add_return_button(self, view, bottom=True, value=None):
+    def add_return_button(self, view, value=None, flayout=True):
         self.return_button = Button(self._activity)
         self.return_button.setOnClickListener(ButtonClick(self.return_view, view, value=value))
         self.return_button.setText('Return')
         self.relative_rb = RelativeLayout(self._activity)
-        if bottom:
-            self.relative_rb.addView(self.return_button, _create_layout_params('bottom'))
+        self.relative_rb.addView(self.return_button, _create_layout_params('bottom'))
+        if flayout:
+            self.flayout.addView(self.relative_rb)
         else:
-            self.relative_rb.addView(self.return_button)
-        self.vlayout.addView(self.relative_rb)
+            self.vlayout.addView(self.relative_rb)
 
     def add_error_text(self):
         self.error_text = TextView(self._activity)
